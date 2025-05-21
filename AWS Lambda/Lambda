@@ -1,0 +1,4 @@
+AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers. 
+It executes code in response to events, such as changes in data, shifts in state, or user actions. 
+AWS Lambda automatically manages the computing resources required by that code and scales automatically, varying from a few requests per day to thousands per second. 
+Users only pay for the compute time they consume, and there is no charge when the code is not running. 
