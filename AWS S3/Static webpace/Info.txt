@@ -1,0 +1,10 @@
+🌐 Hands-On with Amazon S3: Hosting a Static Website! 🚀
+
+As part of my AWS learning journey, I just created and deployed a simple static web page using Amazon S3!
+
+This project helped me understand: ✅ How to create and configure an S3 bucket for static website hosting
+✅ Setting up index.html and error.html pages
+✅ Making the bucket publicly accessible (with proper permissions)
+✅ Accessing the website via the S3 endpoint URL
+
+📹 I’ve also recorded a video walkthrough of the entire process — from bucket creation to seeing the live site in action. Check it out below! 👇
