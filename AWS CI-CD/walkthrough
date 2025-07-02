@@ -1,0 +1,93 @@
+Building a CI/CD Pipeline with AWS CodePipeline to Deploy a Static Website on S3
+Introduction
+AWS CodePipeline provides a native AWS continuous deployment pipeline to manage web application deployments from the source code repository to the deployment of our web application.
+
+In this lab, we will walk through setting up AWS CodePipeline to continuously deploy our web application to S3. We will walk through the prerequisites to set up our pipeline by setting up our source code repository with AWS CodeCommit and creating an S3 bucket to host static web applications. Finally, we will set up our continuous code pipeline with AWS CodePipeline and deploy our web application to S3.
+
+Solution
+
+Create a CodeCommit Repository from the Management Console
+        Navigate to CodeCommit.
+        Under Repositories, click Create repository.
+        In Repository name, enter sample-static-site.
+        Under Tags, click Add.
+        Set the following values:
+        Key: CreatedBy
+        Value: Your name
+        Click Create.
+Add an index.html and JPG File to the Repository
+        Scroll to the bottom of the page and click Add file > Upload file.
+        Click Choose file and select the index.html file downloaded from GitHub.
+        In Commit changes to master, set the following values:
+        Author name: Your name
+        Email address: Your email
+        Commit message: Landing page
+        Click Commit changes.
+        Click Repositories.
+        Click sample-static-site to open the repository page.
+        Click Add file > Upload file.
+        Click Choose file and select the Mount.jpg file downloaded from GitHub.
+        In the Commit changes to master section, set the following values:
+        Author name: Your name
+        Email address: Your email
+        Commit message: Photo
+        Click Commit changes.
+Create an S3 Bucket and Configure It To Host a Static Website
+        Create an S3 Bucket
+        Navigate to S3.
+        Click Create bucket.
+        Set the following values:
+        Bucket name: Unique bucket name
+        Region: US East (N. Virginia) (This will be set for you)
+        Scroll down and uncheck Block all public access.
+        Check I acknowledge that the current settings might result in this bucket and the objects within becoming public.
+        Click Add tag.
+        Set the following values:
+        Key: CreatedBy
+        Value: Your name
+        Leave the rest as their defaults and click Create bucket.
+        Enable Static Website Hosting
+        Click the newly created bucket to open it and select the Properties tab.
+        Scroll to Static website hosting at the bottom and click Edit.
+        In Static website hosting, select Enable.
+        Set the following values:
+        Index document: index.html
+        Error document: error.html
+        Click Save changes.
+Create an S3 Bucket Policy
+        Select the Permissions tab.
+        Scroll down to Bucket policy and click Edit.
+        Copy the Bucket ARN number above the policy editor. You will paste in this
+        Click Policy generator.
+        For Select Type of Policy, select S3 Bucket Policy.
+        Under Add Statement(s), set the following values:
+        Effect: Allow (This'll be selected by default)
+        Principal: *
+        AWS Service: Amazon S3 (This will also be selected for you, and likely greyed out)
+        Actions: GetObject
+        Amazon Resource Name (ARN): <Bucket ARN>/* (Paste in the value you copied, and add a trailing /*)
+        Click Add Statement.
+        Click Generate Policy.
+        Copy the generated policy shown in the Policy JSON Document pop-up to your clipboard.
+        Return to the Edit bucket policy ipageand paste in the policy.
+        Click Save changes.
+Create a Pipeline in AWS CodePipeline That Deploys a Static Website
+        Navigate to CodePipeline.
+        Under Pipelines click Create pipeline.
+        In Pipeline name, enter "sample-static-site-pipeline" and click Next.
+        On the Source page, set the following values:
+        Source provider: AWS CodeCommit
+        Repository name: sample-static-site
+        Branch name: main
+        In Change detection options, select AWS CodePipeline and click Next.
+        Click Skip build stage > Skip.
+        In Deploy on the next page, select Amazon S3 as the deploy provider.
+        Set the following values:
+        Region: US East (N. Virginia)
+        Bucket: Your bucket name
+        Click Extract file before deploy.
+        Leave the rest as their defaults and click Next.
+        Click Create pipeline.
+        Once the deploy stage completes, click the Amazon S3 URL under Deploy to verify deployment.
+        Select the Properties tab and scroll down to Static website hosting at the bottom of the page.
+        Click the bucket website endpoint URL to view the static website.
