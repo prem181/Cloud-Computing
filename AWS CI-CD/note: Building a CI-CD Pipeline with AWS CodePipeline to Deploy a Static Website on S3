@@ -1,0 +1,22 @@
+🚀 CI/CD in Action with AWS CodePipeline + S3! 🌐
+
+Just completed a hands-on lab where I built a CI/CD pipeline using AWS CodePipeline to automatically deploy a static website to Amazon S3. This was a great way to understand how DevOps practices work in the cloud!
+
+🔧 What I did:
+
+Created a CodeCommit repository and uploaded index.html and Mount.jpg
+Set up an S3 bucket with static website hosting enabled
+Configured bucket policies to allow public access
+Built a CodePipeline that:
+Pulls code from CodeCommit
+Skips the build stage (since it’s a static site)
+Deploys directly to the S3 bucket
+✅ Result: Every time I push changes to the repo, the website is automatically updated! 💡
+
+
+
+This lab helped me understand the end-to-end automation of web deployments using AWS-native tools — no manual uploads, no downtime!
+
+💬 Curious about how to set this up or want to try it yourself? Let’s connect!
+
+#AWS #CodePipeline #CodeCommit #S3 #DevOps #CI_CD #CloudComputing #StaticWebsite #Automation #100DaysOfCloud #LearningInPublic
