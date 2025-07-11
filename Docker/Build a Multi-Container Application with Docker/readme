@@ -1,0 +1,27 @@
+🐳 Docker Deep Dive: Building a Multi-Container Application! 🚀
+
+Just wrapped up an exciting hands-on project where I designed, built, and deployed a multi-container application using Docker and Docker Compose!
+
+🔧 What I did:
+
+1️⃣ Design & Build
+
+Created a modular application with separate containers for:
+Frontend (HTML)
+Backend (Python)
+Database (MySQL)
+Used Dockerfile and docker-compose.yml to define and orchestrate services
+2️⃣ Manage & Troubleshoot
+
+Used docker-compose logs, docker exec, and docker ps to monitor and debug containers
+Ensured inter-container communication via Docker networks
+3️⃣ Optimize & Deploy
+
+Reduced image size using multi-stage builds
+Added health checks and restart policies
+Deployed the app locally and tested end-to-end functionality
+📦 This hands-on lab gave me a solid understanding of how to:
+
+Break down monolithic apps into microservices
+Use Docker Compose for orchestration
+Troubleshoot and optimize containerized environments
