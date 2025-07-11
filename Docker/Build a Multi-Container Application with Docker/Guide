@@ -1,0 +1,571 @@
+Design and Build a Multi-Container Application
+In this challenge, you will learn how to build and deploy a multi-container application using Docker Compose. You will define a backend, frontend, and database service, launch them as one unified stack, and confirm that the components interact smoothly. By the end, you will feel confident about orchestrating multiple containers and ensuring they communicate as intended.
+
+Confirming Your Environment is Ready
+You will start with setting up your environment to ensure everything is running as expected.
+
+Click the Open environment button to access the Ubuntu Desktop.
+
+At the bottom of the Desktop, click the Terminal Emulator to access the command line.
+figure
+﻿
+
+In the terminal, type the following command to double-check that everything is ready (enter all commands unless otherwise stated in the terminal):
+
+status
+
+If you see SYSTEM COMPLETE, the environment is ready. However, if you see INITIALIZING, wait a minute, then enter status periodically until you see SYSTEM COMPLETE. It'll take one to five minutes to become ready.
+figure
+Once your environment is ready, proceed to the main tasks.
+
+Check That Your Images Are Available
+Your application will need specific Docker images that have already been created and preloaded for you to use. The images are as follows:
+
+medtest2013/frontendapp: Runs your frontend, showing a simple web page.
+
+medtest2013/backendapp: Runs your backend, handling data and logic.
+
+medtest2013/databaseapp: Runs your database so your backend can store and retrieve data.
+
+Note: These images give you the building blocks for your multi-container application.
+
+To ensure the images are available, you need to run the following command:
+
+docker images
+figure
+What's going on here?
+
+You are asking Docker the following question: Which images do I already have? If you see the images listed above, great! You can use them right now.
+
+Tip: Confirming you have the right images before starting saves time. No one likes surprises halfway through a project.
+
+Create the Docker Compose File
+Your next step is to describe how your containers work together using a docker-compose.yml file. Think of this file like a map that shows Docker Compose which services to run, how they're connected, and what resources they need.
+
+To create and open the file, you need to run the following command:
+
+nano docker-compose.yml
+
+﻿
+figure
+What's going on here?
+
+You are opening a file called docker-compose.yml in the nano text editor. In this file, you'll write instructions that Docker Compose will follow to start your multi-container application.
+
+Tip: Don't worry if you're new to nano. Use arrow keys to move around, and remember to use Control+O to save your progress and Control+X to exit nano.
+
+Add the Multi-Container Configuration
+In this step, you will define how your multi-container application will run and how its services will interact. To simplify and organize this process, you will write the configuration inside a docker-compose.yml file.
+
+Inside docker-compose.yml, add the following YAML content:
+
+services:
+
+  frontend:
+
+    image: medtest2013/frontendapp:latest
+
+    pull_policy: never
+
+    ports:
+
+      - "5001"
+
+    depends_on:
+
+      - backend
+
+    networks:
+
+      - app-network
+
+  backend:
+
+    image: medtest2013/backendapp:latest
+
+    pull_policy: never
+
+    ports:
+
+      - "5000"
+
+    environment:
+
+      - DB_HOST=database
+
+      - DB_USER=root
+
+      - DB_PASSWORD=root
+
+      - DB_NAME=streamingdb
+
+    depends_on:
+
+      - database
+
+    networks:
+
+      - app-network
+
+  database:
+
+    image: medtest2013/databaseapp:latest
+
+    pull_policy: never
+
+    environment:
+
+      - MYSQL_ROOT_PASSWORD=root
+
+      - MYSQL_DATABASE=streamingdb
+
+    volumes:
+
+      - db-data:/var/lib/mysql
+
+    ports:
+
+      - "3306"
+
+    networks:
+
+      - app-network
+
+networks:
+
+  app-network:
+
+volumes:
+
+  db-data:
+
+To paste into the Terminal, use Control+Shift+V. You can on the Unsafe pop-up click Paste. Note, too, the resulting text will have extra newlines, but that won't cause any issues.
+figure
+What's going on here?
+
+- You have three services, the frontend, backend, and database. Each runs in its own container.
+
+- Your frontend listens on port 5001 and won't start until the backend is running, so it always finds the backend ready.
+
+- Your backend listens on port 5000. It needs the database to run first so it can connect to it right away. Simply put, the backend waits for the database, preventing errors due to missing data.
+
+- Your database uses MySQL listens on port 3306 and stores information in a volume db-data. Using a volume means your data stays safe even if you stop or remove the container later.
+
+- All your services share a custom network app-network, allowing them to talk to each other by name instead of tricky IP addresses.
+
+- The pull_policy: never tells Docker Compose not to pull images from the internet, which is perfect because your environment is offline.
+
+- The passwords chosen are not secure. In the real world, you would not want to use these insecure passwords, and further would not hardcode the passwords in a file. This is not the focus here, so beyond the scope of the lab, and they will work just fine in-lab, but in the real-word ensure you follow secure best-practices.
+
+Tip: YAML cares about spacing. Keep things neatly aligned to avoid errors.
+
+Save and exit nano by pressing Control+X ⇾ Y ⇾ Enter.
+
+Start the Multi-Container Application
+Now that you have defined everything, the next step is to start up your multi-container application.
+
+To start the multi-container application, you need to run the following command:
+
+docker-compose up -d
+
+﻿
+figure
+What's going on here?
+
+docker-compose up -d tells Docker Compose to follow your instructions in docker-compose.yml. It creates the Network, sets up the Volume, and starts the database first, then the backend, then the frontend. The -d option means run in the background, so you can still use your terminal for other tasks.
+
+Tip: If you make changes to docker-compose.yml later, run the docker-compose up command again. Docker Compose will update your services automatically.
+
+Verify the Multi-Container Application is Running
+Now, you need to check that everything is running as expected. Taking the time to double or even triple-check can help you avoid any unexpected surprises in your multi-container application.
+
+To verify that your application is running, you need to run the following command:
+
+docker-compose ps
+
+﻿
+figure
+What's going on here?
+
+docker-compose ps shows you a list of your running services and their status. Ideally, you'll see frontend, backend, and database marked as Up, meaning they started successfully.
+
+Tip: If a service isn't Up, try docker-compose logs to see what went wrong. Logs point you to any missing variables or incorrect image references.
+
+Find the Frontend Port
+Now, you need to identify the port on which your frontend service is running so that you can access and test your application.
+
+To  identify your port number, use the following command:
+
+docker-compose ps | grep frontend
+
+﻿
+figure
+What's going on here?
+
+This command filters the docker-compose ps output to show only the frontend service. Look for the part that maps 5001 to a host port.
+
+Tip: The format 0.0.0.0:32770->5001/tcp means your frontend is available on port 32770 on the host, mapped to the container's internal port 5001. In other words, you can access your frontend using port number 32770.
+
+Access the Frontend
+Now that you've identified the port number for your frontend service, your next step is to access the application and ensure everything works as expected.
+
+On your Ubuntu Desktop, in the upper-left go to Applications ⇾ Web Browser to launch your browser.
+
+It may take 30 to 60 seconds to start up.
+
+In the browser's address bar, enter the URL for your frontend. Replace YOUR_PORT with the port number retrieved from the previous step:
+
+http://localhost:YOUR_PORT
+
+In this case, the port displayed was 32770, the URL would be:
+
+http://localhost:32770
+figure
+﻿
+
+What's going on here?
+
+By visiting http://localhost:32770, your browser sends a request to the port exposed by the frontend container. The container processes the request and serves the application displayed in the browser.
+
+Tip: Always use the correct port number shown in the previous step by running docker-compose ps | grep frontend.
+
+Test Your Frontend Application with a Message
+Great job so far! Now, you need to confirm that your frontend application is fully functional by sending a test message through the interface.
+
+In the input box labeled Enter a message, type the following:
+
+Nice job so far!
+
+To paste into the browser, use Control+V.
+figure
+﻿
+
+Click the Send button to submit your message.
+figure
+﻿
+
+After clicking Send, your frontend communicates with the backend API. The backend processes your message and stores it in the database. If everything works as expected, you should see a confirmation message as follows:
+
+Message added successfully!
+figure
+What's going on here?
+
+When you send your message, the frontend sends a request to the backend API at http://backend:5000/api/messages. The backend handles the request, stores the message in the database, and responds to the frontend. This step ensures the frontend, backend, and database are communicating correctly.
+
+Tip: If you don't see the expected confirmation, you can confirm that all containers are running by executing docker-compose ps.
+
+Great work! You've learned how to design and build a multi-container application. You're ready for the next challenge: Manage and Troubleshoot Multi-Container Applications.
+
+
+
+
+
+
+
+
+
+
+
+Manage and Troubleshoot Multi-Container Applications
+In this challenge, you will learn how to keep your multi-container setup healthy, quickly spot and fix issues, and adapt your services to changes in load or requirements. By the end, you'll know how to inspect your containers, check logs, restart or scale services, and clean up your environment when you're done.
+
+Inspect Your Running Services
+As your application is up and running, you may want to confirm that each container is behaving as you expect.
+
+To inspect your running services, you need to run the following command (in the Terminal):
+
+docker-compose top
+
+﻿
+figure
+What's going on here?
+
+docker-compose top shows the actual processes running inside each container that Docker Compose manages. If you see the frontend, backend, and database processes, you know those containers are set up correctly. If something looks off, you can investigate further.
+
+Tip: If you prefer a simpler overview of which containers are Up, you can also use docker-compose ps. However, docker-compose top offers a more detailed glimpse at what's happening inside each service.
+
+View Logs for Troubleshooting
+Logs are your main resource when something isn't working as expected. They can reveal issues like missing environment variables, failed database connections, or code errors.
+
+You need to run the following command to see logs for all services:
+
+docker-compose logs
+figure
+What's going on here?
+
+docker-compose logs merges the output from every container in your stack. If you see an error message, you can track down which container caused it and why.
+
+If you only want the logs from one container, such as the backend, try the following:
+
+docker-compose logs backend
+
+﻿
+figure
+What's going on here?
+
+This focuses on the backend container output, making it easier to narrow down any issues related to the backend of your application.
+
+Tip: Checking logs regularly can help you detect small problems before they become big ones. If a container fails, logs often explain why.
+
+Restart and Scale Services
+Sometimes, a quick restart fixes minor glitches, and scaling can help handle heavier traffic or testing multiple instances. 
+
+To restart a single service, such as the backend of your application, you can run the following command:
+
+docker-compose restart backend
+figure
+What's going on here?
+
+Simply put, you are stopping and then starting the backend container. If it got stuck or ran into a temporary error, restarting might clear it up.
+
+If you need more than one container for a particular service, you can scale it using the following command:
+
+docker-compose up -d --scale backend=3
+
+﻿
+figure
+What's going on here?
+
+When you run docker-compose up -d --scale backend=3 you're asking Docker Compose to create 3 instances of your backend service. This helps your application handle more traffic by spreading the workload across 3 containers. The --scale backend=3 part tells Docker how many backend containers you want. The -d flag runs the containers in the background, so your terminal stays free for other tasks.
+
+Tip: Scaling your backend is a great way to handle more users or requests. After scaling, keep an eye on your logs and resources to make sure everything is running smoothly, and nothing is overloaded.
+
+Clean Up Your Environment
+When you finish testing or troubleshooting, you might want to stop and remove everything related to your multi-container application.
+
+To clean up your environment, you need to run the following command:
+
+docker-compose down
+figure
+What's going on here?
+
+docker-compose down stops and removes all containers, networks, and other resources created by your compose file.
+
+Named volumes that hold your application data usually persist unless you add -v to remove them. To do so, you need to run the following command:
+
+docker-compose down -v
+figure
+What's going on here?
+
+Adding -v ensures that any volumes created for persistent storage are also deleted. This step completely cleans your environment, leaving no trace of the application.
+
+To confirm all containers are removed, you can run:
+
+docker ps -a
+
+﻿
+figure
+What's going on here?
+
+The -a option with docker ps shows every container on your system, not just the running ones. This helps you spot stopped or exited containers that might still be lingering in your environment. It's a handy way to confirm whether your system is tidy or needs cleanup.
+
+Tip: Make it a habit to check for and remove unused containers. Keeping your environment clean prevents confusion and ensures smooth operation the next time you run your applications.
+
+Amazing job! You now know how to manage and troubleshoot your multi-container application. These skills will help you keep your setup stable and responsive as you continue experimenting, adding features, or testing different scenarios. Now, you're ready for the next challenge: Optimize and Deploy the Application.
+
+
+
+
+
+
+
+
+
+Optimize and Deploy the Application
+You already have a multi-container setup running with Docker Compose. In this challenge, you will make your application more flexible, efficient, and easy to recreate. By the end, you'll know how to create a .env file, set resource limits, validate your changes and emulate another environment.
+
+Create a .env File and Add Variables
+Your first step is to store vital settings like ports or credentials in a .env file so you don't have to hardcode them in your Docker Compose file.
+
+To create your .env file, you need to run the following command:
+
+nano .env
+figure
+What's going on here?
+
+You're opening a blank file named .env, which will hold your essential variables. Docker Compose automatically reads these variables at runtime.
+
+Next, you have to add the below settings to the .env file, then save and exit using Control+X ⇾ Y ⇾ Enter:
+
+BACKEND_PORT=5000:5000
+
+FRONTEND_PORT=5001:5001
+
+DB_USER=root
+
+DB_PASSWORD=root
+
+DB_NAME=streamingdb
+
+﻿
+figure
+What's going on here?
+
+You're declaring the ports for the backend and frontend, plus your database user, password, and name. This avoids typing these values directly in your compose file.
+
+Tip: Keeping these details in .env means you can quickly change ports or passwords for different setups. No more sifting through YAML to find every reference.
+
+Reference Variables in docker-compose.yml
+Now, you will edit your docker-compose.yml to use the variables from .env instead of hardcoding them. Look for any place you have ports or environment details and update them.
+
+Before updating your docker-compose.yml file to use variables from .env, open docker-compose.yml for editing with the following command:
+
+nano docker-compose.yml
+figure
+What's going on here?
+
+You are using nano to directly edit the docker-compose.yml file in your terminal. This ensures you can quickly make changes without needing to switch to a separate text editor.
+
+In your open file, update the frontend service to, instead of 5001, use the variable ${FRONTEND_PORT} for its port:
+
+frontend:
+
+  image: medtest2013/frontendapp:latest
+
+  pull_policy: never
+
+  ports:
+
+    - "${FRONTEND_PORT}"
+
+(You can use your keyboard's arrow keys to move to the port value.)
+figure
+What's going on here?
+
+You replaced the hardcoded 5001 with ${FRONTEND_PORT}. Docker Compose will now look for the FRONTEND_PORT variable in your .env file and use its value when deploying the frontend service.
+
+In the same file, change the backend service's port value 5000, the user and password root, and the name streamingdb, to use variables as follows:
+
+backend:
+
+  image: medtest2013/backendapp:latest
+
+  pull_policy: never
+
+  ports:
+
+    - "${BACKEND_PORT}"
+
+  environment:
+
+    - DB_HOST=database
+
+    - DB_USER=${DB_USER}
+
+    - DB_PASSWORD=${DB_PASSWORD}
+
+    - DB_NAME=${DB_NAME}
+
+It is best to just modify each line, as tabbing is important, and won't be maintained if you paste in the previous lines.
+
+﻿
+figure
+What's going on here?
+
+The backend service now uses variables ${BACKEND_PORT}, ${DB_USER}, ${DB_PASSWORD}, and ${DB_NAME}.
+
+Tip: This approach stops you from hunting through your YAML whenever you need to modify something simple, like a port or password.
+
+Add Resource Constraints to Your Services
+You can also define CPU and memory limits to ensure that one container doesn't overwhelm your system's resources.
+
+You can add these constraints to your backend service, below its image line, by adding the following deploy settings (still in your open docker-compose.yml file):
+
+  backend:
+
+    image: medtest2013/backendapp:latest
+
+    deploy:
+
+      resources:
+
+        limits:
+
+          cpus: "0.5"
+
+          memory: "256M"
+
+Ensure you maintain the indentation.
+figure
+What's going on here?
+
+By adding resource constraints, you are setting boundaries for how much CPU and memory the backend container can use. The cpus: "0.5" setting restricts the container to utilizing only half of a single CPU core, while the memory: "256M" ensures the container doesn't use more than 256 MB of memory.
+
+Tip: Other containers could face resource shortages if the values are too high. Carefully adjust these values based on your application's performance and system requirements.
+
+After adding and updating these configurations, save and close your file by pressing Control+X, Y, then Enter.
+
+﻿
+figure
+﻿
+
+Validate Updated Setup
+Before you run your application, it's always a smart move to make sure your configuration is error-free.
+
+To check your docker-compose.yml file for errors, you need to run the following command:
+
+docker-compose config
+
+﻿
+figure
+What's going on here?
+
+This docker-compose config command reviews your YAML file for any errors, substitutes variables from your .env file, and shows the complete configuration. If something's wrong, Docker Compose will point out the issue so you can fix it right away.
+
+Tip: Always validate your configuration after making changes. It's a quick and simple way to avoid headaches later and ensure your setup is ready to run smoothly!
+
+Emulate Another Environment
+Now, you have to test how your application would behave in a fresh environment. You can emulate this by creating a new folder and running a separate instance of your setup. This approach helps you verify that your application is portable and that copying just docker-compose.yml and .env is enough to recreate it.
+
+To begin, you need to create a folder to act as your new environment. This keeps everything separate from your current setup. To do so, run the following command:
+
+mkdir deploy-test
+figure
+What's going on here?
+
+You are creating a folder named deploy-test to hold the configuration files for your new environment. This setup ensures a clean and isolated space for testing.
+
+Tip: Always name your folders descriptively, like staging-test or deploy-test, so you can quickly identify them later.
+
+Next, copy your docker-compose.yml and .env into the newly created folder. To do this, you need to run the following command:
+
+cp docker-compose.yml .env deploy-test/
+figure
+What's going on here?
+
+You are copying the two critical files needed to define and run your application stack using the cp command. These files contain all the settings and configurations Docker Compose uses to build your services.
+
+Tip: Before copying, double-check your .env and docker-compose.yml files to ensure they are up-to-date with your current setup.
+
+To start your application stack in this new folder, you need to navigate to deploy-test and run the docker-compose up command:
+
+cd deploy-test
+
+docker-compose up -d
+
+﻿
+figure
+﻿
+figure
+What's going on here?
+
+Docker Compose will treat this folder as a separate environment, creating new containers, networks, and volumes. The new setup is a great way to test if your application is operational.
+
+Tip: You can keep an eye on logs using docker-compose logs to verify that all services are starting correctly in the new environment.
+
+Access Your Application
+To check that your application is working, you can use the curl command to test if the frontend is responding.
+
+To access your application using the terminal, you need to run the following command:
+
+curl http://localhost:5001
+
+﻿
+figure
+What's going on here?
+
+The curl command sends a direct HTTP request to the frontend container and displays the raw html page of your web application. This method is handy for confirming that your service is running without needing a browser.
+
+Tip: If curl fails, check the logs using docker-compose logs frontend to troubleshoot any errors.
+
+Excellent job! Your multi-container application is now easier to configure, more stable under load, and ready to be recreated anywhere. Experiment with different variable values, resource constraints, or multiple directories to build more confidence in optimizing and deploying Docker-based applications.
