@@ -1,0 +1,98 @@
+Creating an Event-driven Serverless Function with AWS Lambda
+In this lab, you need to create a Lambda function that ensures all books added to the existing book-bucket-* will be appropriately tagged. Ensure the Lamdba function has a role that follows the principle of least privilege, as well as a functioning test event using the existing book in the bucket.
+
+Begin by logging in to the provided AWS Console. Opening the S3 Dashboard and the content GitHub repo in new tabs will be beneficial in using this lab.
+
+Create IAM Role
+Create Policy
+Navigate to the IAM Dashboard.
+
+Select Policies from the left menu.
+
+Click on Create policy in the upper right-hand corner.
+
+This policy should provide the Lambda function with the ability to retrieve and tag objects in S3. As such, select S3 under Select a service.
+
+Search for and select GetObject and PutObjectTagging under Actions Allowed.
+
+Under Resources, select Add ARNs.
+
+Retrieve the book-bucket-* name from your S3 tab and set it as the Resource bucket name. Check off Any object name. Click Add ARNs.
+
+Click Next, ignoring the You need permissions error.
+
+Give the policy a descriptive Policy name, such as LambdaS3ObjectTagger.
+
+Click Create policy.
+
+Create Role
+Click Roles on the left sidebar.
+
+Click Create role.
+
+Leave AWS service selected, and choose Lambda as the Service or use case.
+
+Under Permissions policies search for and select AWSLambdaBasicExecutionRole and the policy you just created, called something like LambdaS3ObjectTagger.
+
+Enter a Role name, such as LambdaObjectTaggerServiceRole. Update the Description to be more specific, such as Allows Lambda function to retrieve and tag objects in S3.
+
+Click Create role.
+
+Create the Lambda Function
+Configure Function
+Move to the Lambda Dashboard.
+
+Select Create function.
+
+Leave Author from scratch selected.
+
+Provide a Function name, such as S3BookTagger.
+
+Choose Python 3.13 as the Runtime.
+
+Expand Change default execution role and select Use an existing role. Select the LambdaObjectTaggerServiceRole as the Existing role.
+
+Click Create function.
+
+Add Code
+Scroll down to the Code source window.
+
+Open book-tagger.py from the course repo.
+
+Copy the code over the existing code in the lambda_function.py editor tab. This code uses regular expressions to retrieve the author and content title from the body of the uploaded text, sanitizes the results to work with tagging restrictions, then adds the tags to the object.
+
+Deploy the code.
+
+Add a trigger
+Scroll up to the Function overview.
+
+Click Add trigger.
+
+Under Trigger configuration search for and select S3.
+
+For Bucket, select the book-bucket-*.
+
+Under Event types, leave All object create events selected.
+
+Check off the acknowledgment regarding Recursive invocations.
+
+Add the trigger.
+
+Test the Lambda function
+Scroll back down to the Code source.
+
+Click the Create test event button in the explorer.
+
+Give the event an Event Name, such as BookTaggerTestEvent.
+
+Retrieve the test-event.json file from the course repo and copy it into the Event JSON text box.
+
+Update the line containing <BOOK BUCKET NAME> so it references your environment's book bucket name.
+
+Save the event.
+
+Close the Create new test event tab and press the Play button next to your test event in the explorer.
+
+Review the output, then open the S3 Dashboard tab and open your book-bucket-*. Select Frankenstein.txt and view the tags.
+
+Success! You have completed this hands-on lab. Feel free to use the additional book text to further test the function, if desired.
